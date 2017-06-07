@@ -1,0 +1,29 @@
+.btn,
+a.btn {
+    display: inline-block;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 20px;
+    border-radius: 4px;
+    padding: 1vh 2vh;
+    letter-spacing: .02rem;
+    background: #664EF7;
+    color: white;
+    font-family: $san-serif;
+    font-size: .8rem;
+    box-shadow: 0 0px 0px $color-shadow, 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.btn,
+a.btn:hover {
+    background: #7C66FF;
+    box-shadow: 0 7px 14px $color-shadow, 0 3px 6px rgba(0, 0, 0, .08);
+    transform: translateY(-1px);
+}
+
+.btn,
+a.btn:active {
+    box-shadow: 0 4px 6px $color-shadow, 0 1px 3px rgba(0, 0, 0, .12);
+    transform: translateY(1px);
+}
