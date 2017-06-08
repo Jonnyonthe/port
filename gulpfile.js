@@ -1,4 +1,4 @@
-var $           = require('gulp-load-plugins')(),
+var $           = require('gulp-load-plugins')({lazy:false}),
     a_pp        = require('adaptive-pixel-perfect').create(),
     browserSync = require('browser-sync').create(),
     colors      = require('colors'),
@@ -24,6 +24,12 @@ var sources = {
     data:       bases.app + 'data/',
     img:        bases.app + 'img/'
 };
+
+// Additional Config
+var config = {
+    production: !!$.util.env.production,
+    sourceMaps: !$.util.env.production
+}
 
 // COLORS
 colors.setTheme({
@@ -198,19 +204,20 @@ gulp.task('nunjucks', function() {
 gulp.task('styles', function() {
   return gulp.src(bases.app + 'scss/styles.scss')
     .pipe($.plumber({errorHandler: onError}))
-    .pipe($.sourcemaps.init())
+    .pipe($.if(config.sourceMaps, $.sourcemaps.init()))
     .pipe($.sass(sassOptions))
     .pipe($.size({ gzip: true, showFiles: true }))
     .pipe($.autoprefixer(prefixerOptions))
     .pipe($.rename('styles.css'))
     .pipe(gulp.dest(bases.dist + 'css'))
     .pipe(reload({stream:true}))
-    .pipe($.cleanCss({debug: true}, function(details) {
+    .pipe(config.production ? $.cleanCss({debug: true}, function(details) {
       console.log(details.name + ': ' + details.stats.originalSize);
       console.log(details.name + ': ' + details.stats.minifiedSize);
-    }))
+    }) : $.util.noop())
     .pipe($.size({ gzip: true, showFiles: true }))
     .pipe($.rename({ suffix: '.min' }))
+    .pipe($.if(config.sourceMaps, $.sourcemaps.write()))
     .pipe(gulp.dest(bases.dist + 'css'))
     .on('end', a_pp.endStyleTask);
 });
@@ -219,18 +226,19 @@ gulp.task('styles', function() {
 gulp.task('themes', function() {
   return gulp.src(bases.app + 'scss/themes/*.scss')
     .pipe($.plumber({errorHandler: onError}))
-    .pipe($.sourcemaps.init())
+    .pipe($.if(config.sourceMaps, $.sourcemaps.init()))
     .pipe($.sass(sassOptions))
     .pipe($.size({ gzip: true, showFiles: true }))
     .pipe($.autoprefixer(prefixerOptions))
     .pipe(gulp.dest(bases.dist + 'css/themes'))
     .pipe(reload({stream:true}))
-    .pipe($.cleanCss({debug: true}, function(details) {
+    .pipe(config.production ? $.cleanCss({debug: true}, function(details) {
       console.log(details.name + ': ' + details.stats.originalSize);
       console.log(details.name + ': ' + details.stats.minifiedSize);
-    }))
+    }) : $.util.noop())
     .pipe($.size({ gzip: true, showFiles: true }))
     .pipe($.rename({ suffix: '.min' }))
+    .pipe($.if(config.sourceMaps, $.sourcemaps.write()))
     .pipe(gulp.dest(bases.dist + 'css/themes'))
     .on('end', a_pp.endStyleTask);
 });
@@ -257,7 +265,7 @@ gulp.task('browser-sync', function() {
 var options = { 
     force: true
 };
-gulp.task('deploy', function() {
+gulp.task('ghpages', function() {
   return gulp.src(bases.dist + '**/*')
     .pipe($.ghPages(options));
 });
