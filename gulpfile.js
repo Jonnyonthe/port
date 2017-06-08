@@ -1,10 +1,10 @@
-var a_pp        = require('adaptive-pixel-perfect').create(),
+var $           = require('gulp-load-plugins')(),
+    a_pp        = require('adaptive-pixel-perfect').create(),
     browserSync = require('browser-sync').create(),
     colors      = require('colors'),
     del         = require('del'),
     fs          = require('fs'),
-    gulp        = require('gulp');
-    glp         = require('gulp-load-plugins')();
+    gulp        = require('gulp'),
     pngquant    = require('imagemin-pngquant'),
     reload      = browserSync.reload,
     runSequence = require('run-sequence'),
@@ -21,7 +21,8 @@ var sources = {
     sprite:     bases.app + 'sprite/',
     pug:        bases.app + 'pug/',
     nunjucks:   bases.app + 'nunjucks/',
-    data:       bases.app + 'data/'
+    data:       bases.app + 'data/',
+    img:        bases.app + 'img/'
 };
 
 // COLORS
@@ -38,7 +39,7 @@ colors.setTheme({
   error:   'red'
 });
 
-// A_PP
+// ADAPTIVE PIXEL PERFECT
 var port = 3010,
     folderForDesignScreenshots = 'design',
     portForBrowserSync = 3000;
@@ -81,6 +82,69 @@ gulp.task('clean:dist', function() {
     .pipe(vinylPaths(del));
 });
 
+// Generate Retina Images
+gulp.task('images', function () {
+  return gulp.src(sources.img + '*.png')
+    .pipe($.responsive({
+      '*.png': [{
+        width: 300,
+        rename: {
+          suffix: '-300px',
+          extname: '.jpg',
+        },
+        format: 'jpeg',
+      }, {
+        width: 600,
+        rename: {
+          suffix: '-600px',
+          extname: '.jpg',
+        },
+        // format option can be omitted because
+        // format of output image is detected from new filename
+        // format: 'jpeg'
+      }, {
+        width: 1900,
+        rename: {
+          suffix: '-1900px',
+          extname: '.jpg',
+        },
+        // Do not enlarge the output image if the input image are already less than the required dimensions.
+        withoutEnlargement: true,
+      }, {
+        // Convert images to the webp format
+        width: 630,
+        rename: {
+          suffix: '-630px',
+          extname: '.webp',
+        },
+      }],
+    }, {
+      // Global configuration for all images
+      // The output quality for JPEG, WebP and TIFF output formats
+      quality: 80,
+      // Use progressive (interlace) scan for JPEG and PNG output
+      progressive: true,
+      // Strip all metadata
+      withMetadata: false,
+      // Do not emit the error when image is enlarged.
+      errorOnEnlargement: false,
+    }))
+    .pipe(gulp.dest('dist'));
+})
+
+// Retina Images
+var retinaOpts = {
+    1: '', 2: '@2x', 3: '@3x'
+};
+gulp.task('views', function() {
+  return gulp.src(bases.dist + '**/*.html')
+    .pipe($.imgRetina(retinaOpts))
+    .on('error', function(e) {
+      console.log(e.message);
+    })
+    .pipe(gulp.dest('./build'));
+});
+
 // SVG Sprite
 var configSVG = {
     mode: {
@@ -98,7 +162,7 @@ var configSVG = {
 };
 gulp.task('sprite', function() {
     return gulp.src(sources.svg + '**/*.svg')
-        .pipe(glp.svgSprite(configSVG))
+        .pipe($.svgSprite(configSVG))
         .pipe(gulp.dest(bases.app));
 });
 gulp.task('svg', ['sprite'],function() {
@@ -109,7 +173,7 @@ gulp.task('svg', ['sprite'],function() {
 // Pug
 gulp.task('pug', function () {
     return gulp.src(sources.pug + 'pages/*.pug')
-        .pipe(glp.pug({
+        .pipe($.pug({
             pretty: true
         }))
         .pipe(gulp.dest(bases.app));
@@ -118,11 +182,11 @@ gulp.task('pug', function () {
 // Nunjucks
 gulp.task('nunjucks', function() {
   return gulp.src(sources.nunjucks + 'pages/*.+(html|nunjucks)')
-    .pipe(glp.plumber({errorHandler: onError}))
-    .pipe(glp.data(function() {
+    .pipe($.plumber({errorHandler: onError}))
+    .pipe($.data(function() {
       return JSON.parse(fs.readFileSync(sources.data + 'data.json'))
     }))
-    .pipe(glp.nunjucksRender({
+    .pipe($.nunjucksRender({
       path: [sources.nunjucks + 'templates'],
       watch: true,
     }))
@@ -133,20 +197,20 @@ gulp.task('nunjucks', function() {
 // Styles
 gulp.task('styles', function() {
   return gulp.src(bases.app + 'scss/styles.scss')
-    .pipe(glp.plumber({errorHandler: onError}))
-    .pipe(glp.sourcemaps.init())
-    .pipe(glp.sass(sassOptions))
-    .pipe(glp.size({ gzip: true, showFiles: true }))
-    .pipe(glp.autoprefixer(prefixerOptions))
-    .pipe(glp.rename('styles.css'))
+    .pipe($.plumber({errorHandler: onError}))
+    .pipe($.sourcemaps.init())
+    .pipe($.sass(sassOptions))
+    .pipe($.size({ gzip: true, showFiles: true }))
+    .pipe($.autoprefixer(prefixerOptions))
+    .pipe($.rename('styles.css'))
     .pipe(gulp.dest(bases.dist + 'css'))
     .pipe(reload({stream:true}))
-    .pipe(glp.cleanCss({debug: true}, function(details) {
+    .pipe($.cleanCss({debug: true}, function(details) {
       console.log(details.name + ': ' + details.stats.originalSize);
       console.log(details.name + ': ' + details.stats.minifiedSize);
     }))
-    .pipe(glp.size({ gzip: true, showFiles: true }))
-    .pipe(glp.rename({ suffix: '.min' }))
+    .pipe($.size({ gzip: true, showFiles: true }))
+    .pipe($.rename({ suffix: '.min' }))
     .pipe(gulp.dest(bases.dist + 'css'))
     .on('end', a_pp.endStyleTask);
 });
@@ -154,19 +218,19 @@ gulp.task('styles', function() {
 // Themes
 gulp.task('themes', function() {
   return gulp.src(bases.app + 'scss/themes/*.scss')
-    .pipe(glp.plumber({errorHandler: onError}))
-    .pipe(glp.sourcemaps.init())
-    .pipe(glp.sass(sassOptions))
-    .pipe(glp.size({ gzip: true, showFiles: true }))
-    .pipe(glp.autoprefixer(prefixerOptions))
+    .pipe($.plumber({errorHandler: onError}))
+    .pipe($.sourcemaps.init())
+    .pipe($.sass(sassOptions))
+    .pipe($.size({ gzip: true, showFiles: true }))
+    .pipe($.autoprefixer(prefixerOptions))
     .pipe(gulp.dest(bases.dist + 'css/themes'))
     .pipe(reload({stream:true}))
-    .pipe(glp.cleanCss({debug: true}, function(details) {
+    .pipe($.cleanCss({debug: true}, function(details) {
       console.log(details.name + ': ' + details.stats.originalSize);
       console.log(details.name + ': ' + details.stats.minifiedSize);
     }))
-    .pipe(glp.size({ gzip: true, showFiles: true }))
-    .pipe(glp.rename({ suffix: '.min' }))
+    .pipe($.size({ gzip: true, showFiles: true }))
+    .pipe($.rename({ suffix: '.min' }))
     .pipe(gulp.dest(bases.dist + 'css/themes'))
     .on('end', a_pp.endStyleTask);
 });
@@ -195,23 +259,23 @@ var options = {
 };
 gulp.task('deploy', function() {
   return gulp.src(bases.dist + '**/*')
-    .pipe(ghpages(options));
+    .pipe($.ghPages(options));
 });
 
 // JS
 gulp.task('js-app', function() {
   gulp.src(bases.app + 'js/*.js')
-    .pipe(glp.uglify())
-    .pipe(glp.size({ gzip: true, showFiles: true }))
-    .pipe(glp.concat('app.js'))
+    .pipe($.uglify())
+    .pipe($.size({ gzip: true, showFiles: true }))
+    .pipe($.concat('app.js'))
     .pipe(gulp.dest(bases.dist + 'js'))
     .pipe(reload({stream:true}));
 });
 gulp.task('js-libs', function() {
   gulp.src([bases.app + 'js/libs/*.js', '!' + bases.app + 'js/libs/modernizr.js'])
-    .pipe(glp.uglify())
-    .pipe(glp.size({ gzip: true, showFiles: true }))
-    .pipe(glp.concat('libs.js'))
+    .pipe($.uglify())
+    .pipe($.size({ gzip: true, showFiles: true }))
+    .pipe($.concat('libs.js'))
     .pipe(gulp.dest(bases.dist + 'js'))
     .pipe(reload({stream:true}));
 });
@@ -220,17 +284,17 @@ gulp.task('js-libs', function() {
 gulp.task('copy', function() {
   // copy modernizr to dist directly
   gulp.src(bases.app + 'js/libs/modernizr.js')
-    .pipe(glp.size({ gzip: true, showFiles: true }))
+    .pipe($.size({ gzip: true, showFiles: true }))
     .pipe(gulp.dest(bases.dist + 'js/libs'))
     .pipe(reload({stream:true}));
   // copy icons to dist directly
   gulp.src(bases.app + 'icons/**/*.*')
-    .pipe(glp.size({ gzip: true, showFiles: true }))
+    .pipe($.size({ gzip: true, showFiles: true }))
     .pipe(gulp.dest(bases.dist))
     .pipe(reload({stream:true}));
   // copy meta files to dist directly
   gulp.src([bases.app + '*.xml', bases.app + '*.txt'])
-    .pipe(glp.size({ gzip: true, showFiles: true }))
+    .pipe($.size({ gzip: true, showFiles: true }))
     .pipe(gulp.dest(bases.dist))
     .pipe(reload({stream:true}));
 
@@ -239,15 +303,15 @@ gulp.task('copy', function() {
 // Sass Lint
 gulp.task('sass-lint', function() {
   gulp.src([bases.app + 'scss/**/*.scss', '!' + bases.app + 'scss/libs/**/*.scss', '!' + bases.app + 'scss/states/_print.scss'])
-    .pipe(glp.sassLint())
-    .pipe(glp.sassLint.format())
-    .pipe(glp.sassLint.failOnError());
+    .pipe($.sassLint())
+    .pipe($.sassLint.format())
+    .pipe($.sassLint.failOnError());
 });
 
 // Minify HTML
 gulp.task('minify-html', function() {
   gulp.src(bases.app + './*.html')
-    .pipe(glp.htmlmin({collapseWhitespace: true}))
+    .pipe($.htmlmin({collapseWhitespace: true}))
     .pipe(gulp.dest(bases.dist))
     .pipe(reload({stream:true}));
 });
@@ -274,7 +338,7 @@ gulp.task('watch', function() {
 // Minify Images
 gulp.task('imagemin', function() {
   return gulp.src(bases.app + 'img/*')
-    .pipe(glp.imagemin({
+    .pipe($.imagemin({
       progressive: true,
       svgoPlugins: [{removeViewBox: false}],
       use: [pngquant()]
