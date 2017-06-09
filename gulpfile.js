@@ -1,4 +1,4 @@
-var $           = require('gulp-load-plugins')({lazy:false}),
+var $           = require('gulp-load-plugins')(),
     a_pp        = require('adaptive-pixel-perfect').create(),
     browserSync = require('browser-sync').create(),
     colors      = require('colors'),
