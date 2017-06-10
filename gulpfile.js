@@ -8,7 +8,6 @@ var $           = require('gulp-load-plugins')(),
     pngquant    = require('imagemin-pngquant'),
     reload      = browserSync.reload,
     runSequence = require('run-sequence'),
-    sassdoc     = require('sassdoc'),
     vinylPaths  = require('vinyl-paths');
 
 // CONFIG
