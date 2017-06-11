@@ -138,7 +138,7 @@ function pug() {
         .pipe($.pug({
             pretty: true
         }))
-        .pipe(gulp.dest(bases.app));
+        .pipe(gulp.dest(bases.app))
 }
 
 // Compile Nunjucks Templates
@@ -229,15 +229,14 @@ function bs() {
     });
 }
 
-function watch() {
-    gulp.watch(bases.app + 'scss/**/*.scss', styles)
-        .on('change', sync.reload);
-    gulp.watch(bases.app + './*.html', minify-html);
+gulp.task('watch', function(done) {
+    gulp.watch(bases.app + 'scss/**/*.scss', styles);
+    gulp.watch(bases.app + './*.html', minifyHtml);
     gulp.watch(bases.app + 'img/*', imagemin);
     gulp.watch(sources.svg + '*.svg', svg);
-    gulp.watch(sources.pug + '**/*.pug', pug);
+    gulp.watch(sources.pug + '**/*.pug').on('change', gulp.series(pug, minifyHtml, sync.reload));
     gulp.watch(sources.nunjucks + '**/*', nunjucks);
-}
+});
 
 // TASKS
 // ==================================================================
@@ -246,7 +245,8 @@ gulp.task('default',
     gulp.series(
         clean,
         gulp.parallel(scripts, jsLibs, imagemin, pug, nunjucks, styles), 
-        minifyHtml, svg, copy, bs, watch
+        minifyHtml, svg, copy,
+        gulp.parallel(bs, 'watch')
     )
 );
 
