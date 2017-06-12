@@ -1,0 +1,89 @@
+extends ../layouts/master
+
+block title
+  +pageTitle("Flexbox Cards")
+
+block body
+  body
+    nav#top.nav.has-shadow
+      .container
+        .nav-left
+          a.nav-item(href='../index.html')
+            img(src='../img/gulp.png', alt='Description')
+        span.nav-toggle
+          span
+          span
+          span
+        .nav-right.nav-menu
+          a.nav-item.is-tab.is-active
+            | Home
+          a.nav-item.is-tab
+            | Features
+          a.nav-item.is-tab
+            | Team
+          a.nav-item.is-tab
+            | Help
+          span.nav-item
+            a.button
+              | Log in
+            a.button.is-info
+              | Sign up
+    section.section.app
+      // Uncomment if you want to use a container <div class="container">
+      .tile.is-ancestor
+        .tile.is-parent
+          article.tile.is-child.notification.is-warning.has-text-centered.stat-tile
+            br
+            p.title Hello World
+        .tile.is-parent
+          article.tile.is-child.notification.is-info.has-text-centered.stat-tile
+            p.title 212
+            p.subtitle
+              i.fa.fa-twitter
+        .tile.is-parent
+          article.tile.is-child.notification.is-primary.has-text-centered.stat-tile
+            p.title 212
+            p.subtitle
+              i.fa.fa-facebook
+        .tile.is-parent
+          article.tile.is-child.notification.is-danger.has-text-centered.stat-tile
+            p.title 212
+            p.subtitle
+              i.fa.fa-google
+        .tile.is-parent
+          article.tile.is-child.notification.is-dark.has-text-centered.stat-tile
+            p.title 212
+            p.subtitle
+              i.fa.fa-github
+      .tile.is-ancestor
+        .tile.is-vertical.is-8
+          .tile
+            .tile.is-parent.is-vertical
+              article.tile.is-child.notification.is-primary
+                p.title Vertical...
+                p.subtitle Top tile
+              article.tile.is-child.notification.is-warning
+                p.title ...tiles
+                p.subtitle Bottom tile
+            .tile.is-parent
+              article.tile.is-child.notification.is-info
+                p.title Middle tile
+                p.subtitle With an image
+                figure.image.is-4by3
+                  img(src='http://placehold.it/640x480')
+          .tile.is-parent.is-bold
+            article.tile.is-child.notification.is-danger
+              p.title Wide tile
+              p.subtitle Aligned with the right tile
+              .content
+                // Content
+        .tile.is-parent
+          article.tile.is-child.notification.is-success
+            .content
+              p.title Tall tile
+              p.subtitle With even more content
+              .content
+                // Content
+                // Uncomment if you want to use a container </div>
+    script(type='text/javascript', src='../js/bulma.js')
+

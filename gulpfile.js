@@ -230,12 +230,13 @@ function bs() {
 }
 
 gulp.task('watch', function(done) {
+    gulp.watch(bases.app + 'js/**/*.js').on('change', gulp.series(scripts, jsLibs, sync.reload));
     gulp.watch(bases.app + 'scss/**/*.scss', styles);
-    gulp.watch(bases.app + './*.html', minifyHtml);
-    gulp.watch(bases.app + 'img/*', imagemin);
-    gulp.watch(sources.svg + '*.svg', svg);
+    gulp.watch(bases.app + './*.html').on('change', gulp.series(minifyHtml, sync.reload));
+    gulp.watch(bases.app + 'img/*').on('change', gulp.series(images, sync.reload));
+    gulp.watch(sources.svg + '*.svg').on('change', gulp.series(svg, sync.reload));
     gulp.watch(sources.pug + '**/*.pug').on('change', gulp.series(pug, minifyHtml, sync.reload));
-    gulp.watch(sources.nunjucks + '**/*', nunjucks);
+    gulp.watch(sources.nunjucks + '**/*').on('change', gulp.series(nunjucks, minifyHtml, sync.reload));
 });
 
 // TASKS
