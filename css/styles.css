@@ -7045,6 +7045,7 @@ html, body {
 }
 
 #main_menu h1 {
+  font-size: 200%;
   text-align: center;
 }
 
@@ -7110,7 +7111,8 @@ a.btn:active {
 }
 
 .flexcards_page h1 {
-  margin: 0 0 1em;
+  font-size: 300%;
+  margin: 0 0 0.5em;
 }
 
 .flexcards_page p {
@@ -7273,6 +7275,34 @@ a.flexcard:hover .flexcard_image {
   background-color: #aaa;
   color: #fff;
   text-align: center;
+}
+
+body, html {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+}
+
+.section.app {
+  background-color: #F62459;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(154, 18, 179, 0.6)), to(rgba(0, 76, 102, 0.6))), -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.6)), to(rgba(0, 0, 0, 0.6)));
+  background-image: linear-gradient(rgba(154, 18, 179, 0.6), rgba(0, 76, 102, 0.6)), linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6));
+}
+
+.stat-tile {
+  padding: 30px 0;
+}
+
+.stat-tile .title {
+  font-size: 40px;
+}
+
+.stat-tile .subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  padding-top: 10px;
+}
+
+.tile.is-primary.stat-tile {
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(25, 181, 254, 0.7)), to(rgba(25, 181, 254, 0.4))), -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.2)), to(rgba(0, 0, 0, 0.4)));
+  background-image: linear-gradient(rgba(25, 181, 254, 0.7), rgba(25, 181, 254, 0.4)), linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4));
 }
 
 hr {
